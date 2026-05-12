@@ -505,41 +505,30 @@ type PageState = 'proposal' | 'gorilla' | 'celebration';
 export default function Home() {
   const [page, setPage] = useState<PageState>('proposal');
 
-  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1503691179537993751/3oKzX8-fiW6TRQoeIAGzdDy99FRnsAQrHsgR56kmpTyxL5BcFs3jFbT4fpehPtoxRgyR';
-
   const sendToDiscord = async (answer: string, emoji: string) => {
     try {
-      await fetch(WEBHOOK_URL, {
+      console.log('🔄 Sending to Discord API...', { answer, emoji });
+      
+      const response = await fetch('/api/discord', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content: `**${answer}** ${emoji}`,
-          embeds: [
-            {
-              title: '💕 Proposal Response',
-              description: answer === 'YES ✅' ? 'Mansi ne HA bolun diya! 🎉💕' : 'Mansi ne NA bolun diya! 😢',
-              color: answer === 'YES ✅' ? 65280 : 16711680, // Green for YES, Red for NO
-              fields: [
-                {
-                  name: 'Answer',
-                  value: answer,
-                  inline: true
-                },
-                {
-                  name: 'Time',
-                  value: new Date().toLocaleString(),
-                  inline: true
-                }
-              ],
-              timestamp: new Date().toISOString()
-            }
-          ]
-        })
+        body: JSON.stringify({ answer, emoji })
       });
+
+      console.log('📡 API Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Discord API failed:', response.status, errorData);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('✅ Discord notification sent:', data);
     } catch (error) {
-      console.error('Discord notification failed:', error);
+      console.error('💥 Discord fetch failed:', error);
     }
   };
 
@@ -552,7 +541,6 @@ export default function Home() {
     console.log('📱 PROPOSAL RESPONSE:', response);
     localStorage.setItem('mansiResponse', JSON.stringify(response));
     sendToDiscord('YES ✅', '🎉💕');
-    alert('✅ Mansi ne HA bolun diya! 🎉💕\n\nResponse saved!');
     setPage('celebration');
   };
 
@@ -654,8 +642,8 @@ export default function Home() {
             transition={{ duration: 0.3 }}
           >
             <ProposalPage
-              onYes={() => setPage('celebration')}
-              onNo={() => setPage('gorilla')}
+              onYes={handleYesClick}
+              onNo={handleNoClick}
             />
           </motion.div>
         )}
