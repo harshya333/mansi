@@ -6,26 +6,35 @@ import { Heart, Sparkles } from 'lucide-react';
 
 // ============== Floating Hearts Background ==============
 function FloatingHearts() {
-  const hearts = Array.from({ length: 25 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 8,
-    duration: 6 + Math.random() * 6,
-    size: 12 + Math.random() * 24,
-    opacity: 0.15 + Math.random() * 0.35,
-  }));
+  const [hearts, setHearts] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const generatedHearts = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 6 + Math.random() * 6,
+      size: 16 + Math.random() * 32,
+      opacity: 0.2 + Math.random() * 0.5,
+    }));
+    setHearts(generatedHearts);
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {hearts.map((heart) => (
         <motion.div
           key={heart.id}
-          className="absolute text-pink-400"
+          className="absolute text-red-400"
           style={{ left: `${heart.left}%`, fontSize: heart.size }}
           animate={{
             y: ['110vh', '-10vh'],
-            x: [0, Math.sin(heart.id) * 40, -Math.sin(heart.id) * 30, 0],
-            rotate: [0, 15, -10, 5],
+            x: [0, Math.sin(heart.id) * 60, -Math.sin(heart.id) * 50, 0],
+            rotate: [0, 20, -15, 10],
             opacity: [0, heart.opacity, heart.opacity, 0],
           }}
           transition={{
@@ -44,13 +53,22 @@ function FloatingHearts() {
 
 // ============== Sparkle Particles ==============
 function SparkleParticles() {
-  const particles = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    top: Math.random() * 100,
-    delay: Math.random() * 3,
-    size: 8 + Math.random() * 16,
-  }));
+  const [particles, setParticles] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const generatedParticles = Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+      size: 12 + Math.random() * 24,
+    }));
+    setParticles(generatedParticles);
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -60,9 +78,9 @@ function SparkleParticles() {
           className="absolute"
           style={{ left: `${p.left}%`, top: `${p.top}%` }}
           animate={{
-            scale: [0, 1.2, 0],
+            scale: [0, 1.5, 0],
             rotate: [0, 180, 360],
-            opacity: [0, 0.8, 0],
+            opacity: [0, 1, 0],
           }}
           transition={{
             duration: 2.5,
@@ -80,17 +98,26 @@ function SparkleParticles() {
 
 // ============== Confetti Component ==============
 function Confetti() {
+  const [pieces, setPieces] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
   const confettiColors = ['#ff6b9d', '#ff85a1', '#ffc2d1', '#ff4d6d', '#c9184a', '#ff758f', '#ffd700', '#ff1493', '#ff69b4'];
-  const pieces = Array.from({ length: 80 }, (_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 2,
-    duration: 3 + Math.random() * 3,
-    color: confettiColors[i % confettiColors.length],
-    size: 6 + Math.random() * 10,
-    rotation: Math.random() * 360,
-    type: Math.random() > 0.5 ? 'square' : 'circle',
-  }));
+
+  useEffect(() => {
+    const generatedPieces = Array.from({ length: 80 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 2,
+      duration: 3 + Math.random() * 3,
+      color: confettiColors[i % confettiColors.length],
+      size: 6 + Math.random() * 10,
+      rotation: Math.random() * 360,
+      type: Math.random() > 0.5 ? 'square' : 'circle',
+    }));
+    setPieces(generatedPieces);
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
@@ -135,104 +162,133 @@ function Confetti() {
 // ============== PROPOSAL PAGE ==============
 function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   return (
-    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
       <motion.div
-        className="text-center max-w-lg mx-auto w-full"
+        className="text-center max-w-2xl mx-auto w-full"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: 'easeOut' }}
       >
         {/* Romantic Background Image */}
         <motion.div
-          className="relative w-full h-48 sm:h-64 rounded-3xl overflow-hidden mb-8 shadow-2xl"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.2, delay: 0.3 }}
+          className="relative w-full h-72 sm:h-80 rounded-[2.5rem] overflow-hidden mb-12 shadow-2xl border-4 border-white/40 backdrop-blur-md"
+          initial={{ scale: 0.6, opacity: 0, y: -60 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ duration: 1.4, delay: 0.2, type: 'spring', stiffness: 80 }}
+          whileHover={{ scale: 1.03, y: -15 }}
         >
           <img
-            src="/romantic-bg.png"
+            src="/flower.jpeg"
             alt="Romantic background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-500/20 to-black/50"
+            animate={{ opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 5, repeat: Infinity }}
+          />
         </motion.div>
 
-        {/* Main Question */}
-        <motion.h1
-          className="text-3xl sm:text-5xl font-bold text-pink-600 mb-4 leading-tight"
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.5, type: 'spring', stiffness: 200 }}
+        {/* Main Heading */}
+        <motion.div
+          className="mb-12 space-y-6"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <span className="inline-block">Mujhe Tum</span>
-          <motion.span
-            className="inline-block text-red-500"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          <motion.h1
+            className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight"
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              textShadow: '0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 146, 60, 0.4)'
+            }}
           >
-            {' '}Bahut{' '}
-          </motion.span>
-          <span className="inline-block">Pasand Ho 💕</span>
-        </motion.h1>
+            <span className="block text-white mb-2">
+              Mansi Ekda
+            </span>
+            <motion.span
+              className="block text-5xl sm:text-6xl lg:text-7xl text-white"
+              animate={{ scale: [1, 1.15, 1], rotate: [0, 3, -3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              bhetun 
+            </motion.span>
+            <span className="block text-4xl sm:text-5xl lg:text-6xl text-white mt-2">
+              bolu shakto ka plz 🙏
+            </span>
+          </motion.h1>
+        </motion.div>
 
-        <motion.p
-          className="text-xl sm:text-2xl text-gray-700 mb-10 font-medium"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        {/* Buttons Container */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16 mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          Kya Tumhe Main Pasand Hoon? 🥺
-        </motion.p>
-
-        {/* Both Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
           {/* Yes Button */}
           <motion.button
             onClick={onYes}
-            className="px-12 py-5 bg-gradient-to-r from-pink-500 to-red-500 text-white text-2xl sm:text-3xl font-bold rounded-full shadow-lg cursor-pointer select-none overflow-hidden"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            className="relative px-12 sm:px-16 py-5 sm:py-6 bg-gradient-to-br from-pink-500 via-red-500 to-pink-600 text-white text-2xl sm:text-3xl font-black rounded-full shadow-2xl cursor-pointer select-none overflow-hidden border-3 border-yellow-300/70 backdrop-blur-md"
+            whileHover={{ scale: 1.12, y: -8, boxShadow: '0 20px 50px rgba(236, 72, 153, 0.8), 0 0 30px rgba(251, 191, 36, 0.6)' }}
+            whileTap={{ scale: 0.92 }}
             animate={{
               boxShadow: [
-                '0 0 20px rgba(236, 72, 153, 0.4)',
-                '0 0 40px rgba(236, 72, 153, 0.6)',
-                '0 0 20px rgba(236, 72, 153, 0.4)',
+                '0 0 40px rgba(236, 72, 153, 0.6), 0 0 80px rgba(239, 68, 68, 0.3), 0 0 20px rgba(251, 191, 36, 0.4)',
+                '0 0 60px rgba(236, 72, 153, 0.9), 0 0 120px rgba(239, 68, 68, 0.5), 0 0 40px rgba(251, 191, 36, 0.7)',
+                '0 0 40px rgba(236, 72, 153, 0.6), 0 0 80px rgba(239, 68, 68, 0.3), 0 0 20px rgba(251, 191, 36, 0.4)',
               ],
             }}
-            transition={{ boxShadow: { duration: 2, repeat: Infinity } }}
+            transition={{ boxShadow: { duration: 2.5, repeat: Infinity } }}
           >
             <motion.span
-              animate={{ y: [0, -2, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="block drop-shadow-lg"
             >
-              Haan Ji! 💖
+              Ho
             </motion.span>
           </motion.button>
 
-          {/* No Button - CLICKABLE, no escape */}
+          {/* No Button */}
           <motion.button
             onClick={onNo}
-            className="px-10 py-4 bg-gray-200 text-gray-600 text-xl font-medium rounded-full cursor-pointer select-none hover:bg-gray-300 active:bg-gray-400 transition-colors shadow-md"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, x: 30 }}
+            className="relative px-10 sm:px-14 py-5 sm:py-6 bg-gradient-to-br from-gray-300 to-gray-400 text-white text-xl sm:text-2xl font-bold rounded-full cursor-pointer select-none shadow-xl border-3 border-yellow-300/70 backdrop-blur-md hover:from-red-300 hover:to-red-400 hover:text-white transition-all duration-300"
+            whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0], boxShadow: '0 0 20px rgba(251, 191, 36, 0.5)' }}
+            whileTap={{ scale: 0.88 }}
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
+            transition={{ delay: 1.3, duration: 0.6 }}
           >
-            Nahi... 😒
+            <motion.span
+              animate={{ scale: [1, 1.12, 1] }}
+              transition={{ duration: 1.3, repeat: Infinity }}
+              className="block drop-shadow-md"
+            >
+              Sorry but mala nahi jamnar😑
+            </motion.span>
           </motion.button>
-        </div>
+        </motion.div>
       </motion.div>
 
-      {/* Bottom hint */}
-      <motion.p
-        className="absolute bottom-8 text-gray-400 text-sm text-center px-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.5 }}
+      {/* Bottom Hint */}
+      <motion.div
+        className="absolute bottom-12 text-center px-4"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 2.8, duration: 0.8 }}
       >
-        Soch lo ache se... 😏
-      </motion.p>
+        <motion.p
+          className="text-lg sm:text-xl font-bold drop-shadow-lg"
+          animate={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <span className="text-white">
+            💖💖💖
+          </span>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
@@ -242,7 +298,7 @@ function GorillaPage({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onBack();
-    }, 3000);
+    }, 11000);
     return () => clearTimeout(timer);
   }, [onBack]);
 
@@ -256,14 +312,12 @@ function GorillaPage({ onBack }: { onBack: () => void }) {
         transition={{ duration: 0.6 }}
       />
 
-      {/* Gorilla Image - Shaking */}
+      {/* Video - Playing */}
       <motion.div
         className="relative mb-6"
-        animate={{
-          x: [0, -8, 8, -6, 6, 0],
-          rotate: [0, -3, 3, -2, 2, 0],
-        }}
-        transition={{ duration: 0.5, repeat: 5, ease: 'easeInOut' }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
       >
         <motion.div
           className="w-72 h-72 sm:w-96 sm:h-96 rounded-3xl overflow-hidden shadow-2xl border-4 border-red-500"
@@ -274,68 +328,32 @@ function GorillaPage({ onBack }: { onBack: () => void }) {
               '0 0 20px rgba(239, 68, 68, 0.4)',
             ],
           }}
-          transition={{ duration: 0.8, repeat: 3 }}
+          transition={{ duration: 0.8, repeat: Infinity }}
         >
-          <img
-            src="/funny-monkey.png"
-            alt="Gorilla with gun"
-            className="w-full h-full object-contain bg-white"
+          <video
+            src="/SaveFast.app_AQMtpgKIsDv2Qpni8ejzuQatWBwukokoVN-gFY7Nr7dsMzNNwg3tcvkziWeyEkev9cQNvOShKcg4qXf18-Ugk29xOydxFXgnbfAAL-k.mp4"
+            autoPlay
+            muted
+            loop
+            className="w-full h-full object-cover bg-white"
           />
-        </motion.div>
-
-        {/* Gun emoji floating */}
-        <motion.div
-          className="absolute -top-4 -right-4 text-4xl"
-          animate={{ y: [0, -10, 0], rotate: [-15, 15, -15] }}
-          transition={{ duration: 0.6, repeat: 5 }}
-        >
-          🔫
-        </motion.div>
-        {/* Glasses emoji */}
-        <motion.div
-          className="absolute -bottom-3 -left-3 text-3xl"
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ duration: 0.8, repeat: 3 }}
-        >
-          🤓
         </motion.div>
       </motion.div>
 
-      {/* Speech Bubble */}
+      {/* Text */}
       <motion.div
-        className="relative bg-white rounded-3xl p-6 sm:p-8 shadow-2xl mx-4 border-2 border-red-400 max-w-md"
-        initial={{ opacity: 0, y: 40, scale: 0.7 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 0.4, type: 'spring', stiffness: 250 }}
+        className="relative text-center"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
       >
-        {/* Speech bubble arrow */}
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[20px] border-b-white" />
-
         <motion.h2
-          className="text-3xl sm:text-4xl font-extrabold text-red-600 mb-3 text-center"
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 0.4, repeat: 4 }}
+          className="text-3xl sm:text-4xl font-extrabold  text-white"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 0.8, repeat: Infinity }}
         >
-          Ha Bol De Yaar Plz! 🙏
+          Ho bolun de na Mansi 🙏
         </motion.h2>
-
-        <motion.p
-          className="text-lg text-gray-600 font-medium text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          Nahi toh gorilla tujhe gun se daraayega! 😤🔫
-        </motion.p>
-
-        <motion.div
-          className="mt-3 text-center text-sm text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
-          Wapas ja raha hoon... soch lena! 🐒
-        </motion.div>
       </motion.div>
     </div>
   );
@@ -350,13 +368,7 @@ function CelebrationPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const loveMessages = [
-    "Tum meri zindagi ka sabse khoobsurat hissa ho 🌸",
-    "Har pal tumhare bina adhoora lagta hai 💕",
-    "Tumse milke zindagi mein kuch alag hi mehsoos hota hai ✨",
-    "Tum meri duniya ho, meri khushi ho, mera sab kuch ho 🥰",
-    "Ab toh zindagi set ho jaayegi 😄",
-  ];
+  const loveMessages = [];
 
   return (
     <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
@@ -372,45 +384,62 @@ function CelebrationPage() {
           >
             {/* Big Heart */}
             <motion.div
-              className="text-8xl sm:text-9xl mb-8"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+              className="text-9xl sm:text-[120px] mb-10"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 100, delay: 0.3, duration: 1 }}
             >
               <motion.span
-                animate={{ scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ 
+                  scale: [1, 1.4, 1], 
+                  rotate: [0, 20, -20, 0],
+                  filter: [
+                    'drop-shadow(0 0 0px rgba(255, 0, 100, 0.6))',
+                    'drop-shadow(0 0 30px rgba(255, 0, 100, 1))',
+                    'drop-shadow(0 0 0px rgba(255, 0, 100, 0.6))'
+                  ]
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
               >
                 ❤️
               </motion.span>
             </motion.div>
 
             <motion.h1
-              className="text-4xl sm:text-6xl font-extrabold mb-6 bg-gradient-to-r from-pink-500 via-red-500 to-pink-500 bg-clip-text text-transparent"
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8, type: 'spring' }}
+              className="text-5xl sm:text-7xl font-black mb-8 text-white drop-shadow-2xl"
+              initial={{ y: 80, opacity: 0, scale: 0.5 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 1, type: 'spring', stiffness: 100 }}
+              style={{
+                textShadow: '0 0 30px rgba(251, 191, 36, 0.5), 0 0 60px rgba(251, 146, 60, 0.3)'
+              }}
             >
-              YESSS! 🎉🎊
+              <motion.span
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+              >
+                YESSS! 🎉🎊
+              </motion.span>
             </motion.h1>
 
             <motion.p
-              className="text-2xl sm:text-3xl text-gray-700 mb-8 font-semibold"
-              initial={{ y: 30, opacity: 0 }}
+              className="text-2xl sm:text-4xl text-white mb-8 font-bold drop-shadow-lg"
+              initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
+              transition={{ delay: 1, duration: 0.8 }}
             >
-              Mujhe Bhi Tum Bahut Pasand Ho! 💖
+              🙏💖
             </motion.p>
 
-            <div className="space-y-4 mb-8">
+            <div className="space-y-4 mb-10">
               {loveMessages.map((msg, i) => (
                 <motion.p
                   key={i}
-                  className="text-lg text-gray-600 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border border-pink-100"
-                  initial={{ x: -50, opacity: 0 }}
+                  className="text-lg text-white bg-gradient-to-r from-pink-500/20 to-red-500/20 backdrop-blur-md rounded-2xl px-6 py-4 shadow-lg border border-pink-300/50 font-medium"
+                  initial={{ x: -100, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 1.2 + i * 0.3, duration: 0.5 }}
+                  transition={{ delay: 1.3 + i * 0.25, duration: 0.6, type: 'spring' }}
+                  whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(236, 72, 153, 0.5)' }}
                 >
                   {msg}
                 </motion.p>
@@ -435,13 +464,33 @@ function CelebrationPage() {
             </motion.div>
 
             <motion.div
-              className="bg-gradient-to-r from-pink-100 to-red-100 rounded-3xl p-6 shadow-lg"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 3.5, duration: 0.6 }}
+              className="bg-gradient-to-r from-pink-500/30 to-red-500/30 backdrop-blur-md rounded-3xl p-8 shadow-2xl border-2 border-yellow-300/50"
+              initial={{ y: 50, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: 3.8, duration: 0.8, type: 'spring' }}
+              whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(236, 72, 153, 0.6), 0 0 30px rgba(251, 191, 36, 0.5)' }}
+              style={{
+                boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)'
+              }}
             >
-              <p className="text-xl font-bold text-pink-600">Ab toh pakka date pe jaana hai! 😄</p>
-              <p className="text-gray-500 mt-2 text-sm">(Gorilla bhi khush hoga 🦍💕)</p>
+              <motion.p 
+                className="text-2xl font-black text-white drop-shadow-lg"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+                style={{
+                  textShadow: '0 0 15px rgba(251, 191, 36, 0.5)'
+                }}
+              >
+                
+              </motion.p>
+              <motion.p 
+                className="text-white mt-3 text-lg font-semibold drop-shadow-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 4.2 }}
+              >
+                Thank You💕
+              </motion.p>
             </motion.div>
           </motion.div>
         )}
@@ -456,8 +505,142 @@ type PageState = 'proposal' | 'gorilla' | 'celebration';
 export default function Home() {
   const [page, setPage] = useState<PageState>('proposal');
 
+  const WEBHOOK_URL = 'https://discord.com/api/webhooks/1503691179537993751/3oKzX8-fiW6TRQoeIAGzdDy99FRnsAQrHsgR56kmpTyxL5BcFs3jFbT4fpehPtoxRgyR';
+
+  const sendToDiscord = async (answer: string, emoji: string) => {
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `**${answer}** ${emoji}`,
+          embeds: [
+            {
+              title: '💕 Proposal Response',
+              description: answer === 'YES ✅' ? 'Mansi ne HA bolun diya! 🎉💕' : 'Mansi ne NA bolun diya! 😢',
+              color: answer === 'YES ✅' ? 65280 : 16711680, // Green for YES, Red for NO
+              fields: [
+                {
+                  name: 'Answer',
+                  value: answer,
+                  inline: true
+                },
+                {
+                  name: 'Time',
+                  value: new Date().toLocaleString(),
+                  inline: true
+                }
+              ],
+              timestamp: new Date().toISOString()
+            }
+          ]
+        })
+      });
+    } catch (error) {
+      console.error('Discord notification failed:', error);
+    }
+  };
+
+  const handleYesClick = () => {
+    const response = {
+      answer: 'YES ✅',
+      timestamp: new Date().toLocaleString(),
+      message: 'Mansi ne HA bolun diya! 🎉💕'
+    };
+    console.log('📱 PROPOSAL RESPONSE:', response);
+    localStorage.setItem('mansiResponse', JSON.stringify(response));
+    sendToDiscord('YES ✅', '🎉💕');
+    alert('✅ Mansi ne HA bolun diya! 🎉💕\n\nResponse saved!');
+    setPage('celebration');
+  };
+
+  const handleNoClick = () => {
+    const response = {
+      answer: 'NO ❌',
+      timestamp: new Date().toLocaleString(),
+      message: 'Mansi ne NA bolun diya! 😢'
+    };
+    console.log('📱 PROPOSAL RESPONSE:', response);
+    localStorage.setItem('mansiResponse', JSON.stringify(response));
+    sendToDiscord('NO ❌', '😢');
+    setPage('gorilla');
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-red-50 relative overflow-hidden">
+    <main className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-pink-800 to-red-900 z-0" />
+      
+      {/* Animated Gradient Overlay */}
+      <motion.div
+        className="fixed inset-0 bg-gradient-to-tr from-transparent via-pink-600/20 to-purple-600/20 z-0"
+        animate={{
+          opacity: [0.3, 0.6, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      {/* Glow Effect */}
+      <motion.div
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl z-0"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      {/* Golden Glow Effect */}
+      <motion.div
+        className="fixed top-1/3 right-1/3 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl z-0"
+        animate={{
+          scale: [1, 1.4, 1],
+          opacity: [0.2, 0.4, 0.2],
+          x: [0, 40, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      <motion.div
+        className="fixed top-1/4 right-1/4 w-72 h-72 bg-red-500/25 rounded-full blur-3xl z-0"
+        animate={{
+          scale: [1, 1.3, 1],
+          x: [0, 30, 0],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
+      <motion.div
+        className="fixed bottom-1/4 left-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl z-0"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          y: [0, -20, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
+
       <FloatingHearts />
       <SparkleParticles />
 
