@@ -124,7 +124,6 @@ function Confetti() {
           />
         </motion.div>
       ))}
-      {/* Big falling hearts */}
       {Array.from({ length: 15 }, (_, i) => (
         <motion.div
           key={`heart-${i}`}
@@ -135,6 +134,112 @@ function Confetti() {
         >
           💕
         </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// ============== Disco Equalizer Bars ==============
+function EqualizerBars() {
+  const bars = 24;
+  return (
+    <div className="flex items-end justify-center gap-[3px] h-12 w-full max-w-xs">
+      {Array.from({ length: bars }, (_, i) => (
+        <motion.div
+          key={i}
+          className="flex-1 rounded-t-sm"
+          style={{
+            background: `linear-gradient(to top, #ff006e, #ff4d6d, #ffd700)`,
+            maxWidth: '12px',
+          }}
+          animate={{
+            height: [
+              `${8 + Math.random() * 15}px`,
+              `${20 + Math.random() * 30}px`,
+              `${5 + Math.random() * 10}px`,
+              `${25 + Math.random() * 35}px`,
+              `${10 + Math.random() * 15}px`,
+            ],
+          }}
+          transition={{
+            duration: 0.8 + Math.random() * 0.6,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: i * 0.05,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ============== Music Notes Floating ==============
+function MusicNotes() {
+  const notes = ['🎵', '🎶', '🎼', '🎤', '🎷', '🎺'];
+  const particles = Array.from({ length: 18 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 4,
+    duration: 3 + Math.random() * 3,
+    note: notes[i % notes.length],
+    size: 16 + Math.random() * 20,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute"
+          style={{ left: `${p.left}%`, fontSize: p.size }}
+          animate={{
+            y: ['100%', '-20%'],
+            x: [0, Math.sin(p.id * 2) * 50, -Math.cos(p.id * 3) * 30, 0],
+            rotate: [0, 180, 360],
+            opacity: [0, 1, 1, 0],
+            scale: [0.5, 1.2, 1, 0.5],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: 'easeOut',
+          }}
+        >
+          {p.note}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// ============== Disco Spotlight Beams ==============
+function DiscoSpotlights() {
+  const colors = ['#ff006e', '#ffd700', '#00f5d4', '#9b5de5', '#ff4d6d', '#06d6a0'];
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+      {colors.map((color, i) => (
+        <motion.div
+          key={i}
+          className="absolute top-0"
+          style={{
+            left: `${15 + i * 15}%`,
+            width: '2px',
+            height: '100%',
+            background: `linear-gradient(to bottom, ${color}80, transparent 70%)`,
+            transformOrigin: 'top center',
+          }}
+          animate={{
+            rotate: [-20 + i * 8, -20 + i * 8 + 15, -20 + i * 8],
+            opacity: [0.3, 0.7, 0.3],
+          }}
+          transition={{
+            duration: 2 + i * 0.3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: i * 0.2,
+          }}
+        />
       ))}
     </div>
   );
@@ -237,7 +342,7 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
 
         {/* Buttons Area */}
         <div className="relative w-full min-h-[200px] flex flex-col items-center">
-          {/* Yes Button - Gets bigger with each No attempt */}
+          {/* Yes Button */}
           <motion.button
             onClick={onYes}
             className="relative px-12 py-5 bg-gradient-to-r from-pink-500 to-red-500 text-white text-2xl sm:text-3xl font-bold rounded-full shadow-lg cursor-pointer select-none overflow-hidden z-10"
@@ -307,96 +412,310 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
   );
 }
 
-// ============== MONKEY REJECTION PAGE ==============
-function MonkeyPage({ onBack }: { onBack: () => void }) {
+// ============== MONKEY DANCE VIDEO PAGE ==============
+function MonkeyDancePage({ onBack }: { onBack: () => void }) {
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [countdown, setCountdown] = useState(6);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onBack();
-    }, 3500);
-    return () => clearTimeout(timer);
-  }, [onBack]);
+    const showTimer = setTimeout(() => setShowPlayer(true), 600);
+    return () => clearTimeout(showTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!showPlayer) return;
+    const startTime = Date.now();
+    const totalDuration = 7000;
+
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min((elapsed / totalDuration) * 100, 100);
+      setProgress(pct);
+
+      const remaining = Math.max(0, Math.ceil((totalDuration - elapsed) / 1000));
+      setCountdown(remaining);
+
+      if (elapsed >= totalDuration) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        onBack();
+      }
+    }, 50);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [showPlayer, onBack]);
+
+  const danceTexts = [
+    "NAHI NAHI! 🙅‍♂️",
+    "Bilkul Nahi! 🚫",
+    "No No No! 💃",
+    "NAHIIIII! 🐒",
+    "Zaroori Nahi! 😤",
+  ];
+  const [currentDanceText, setCurrentDanceText] = useState(0);
+
+  useEffect(() => {
+    if (!showPlayer) return;
+    const textInterval = setInterval(() => {
+      setCurrentDanceText((prev) => (prev + 1) % danceTexts.length);
+    }, 1400);
+    return () => clearInterval(textInterval);
+  }, [showPlayer, danceTexts.length]);
 
   return (
-    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-red-50">
-      <motion.div
-        className="text-center max-w-md mx-auto"
-        initial={{ opacity: 0, scale: 0.3 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-      >
-        {/* Warning flash effect */}
-        <motion.div
-          className="fixed inset-0 bg-red-500 z-0"
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-        />
+    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8"
+      style={{
+        background: 'radial-gradient(ellipse at center, #1a0033 0%, #0d001a 50%, #000000 100%)',
+      }}
+    >
+      {/* Disco Spotlights */}
+      <DiscoSpotlights />
 
-        {/* Monkey Image */}
-        <motion.div
-          className="relative mb-8"
-          animate={{
-            x: [0, -10, 10, -10, 10, 0],
-            rotate: [0, -5, 5, -5, 5, 0],
-          }}
-          transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
-        >
+      {/* Music Notes */}
+      {showPlayer && <MusicNotes />}
+
+      <AnimatePresence>
+        {showPlayer && (
           <motion.div
-            className="w-64 h-64 sm:w-80 sm:h-80 mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-red-400"
-            animate={{
-              boxShadow: [
-                '0 0 30px rgba(239, 68, 68, 0.3)',
-                '0 0 60px rgba(239, 68, 68, 0.6)',
-                '0 0 30px rgba(239, 68, 68, 0.3)',
-              ],
-            }}
-            transition={{ duration: 0.8, repeat: Infinity }}
+            className="w-full max-w-lg mx-auto relative z-30"
+            initial={{ opacity: 0, scale: 0.5, y: 60 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           >
-            <img
-              src="/funny-monkey.png"
-              alt="Funny Monkey with gun"
-              className="w-full h-full object-contain bg-white"
-            />
+            {/* Video Title Bar */}
+            <motion.div
+              className="bg-gray-900 rounded-t-2xl px-4 py-2 flex items-center gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+              </div>
+              <div className="flex-1 text-center">
+                <span className="text-gray-400 text-xs sm:text-sm font-medium truncate">
+                  🐒 Monkey Dance - Nahi Nahi Remix.mp4
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Video Player Area */}
+            <div className="relative bg-black aspect-[4/3] overflow-hidden">
+              {/* Disco Color Wash Background */}
+              <motion.div
+                className="absolute inset-0 z-0"
+                animate={{
+                  background: [
+                    'linear-gradient(135deg, #ff006e30, #9b5de530)',
+                    'linear-gradient(135deg, #ffd70030, #ff006e30)',
+                    'linear-gradient(135deg, #06d6a030, #ffd70030)',
+                    'linear-gradient(135deg, #9b5de530, #06d6a030)',
+                    'linear-gradient(135deg, #ff006e30, #9b5de530)',
+                  ],
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Disco Floor Effect (Bottom) */}
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-16 z-5"
+                style={{
+                  background: 'linear-gradient(to top, rgba(255,0,110,0.3), transparent)',
+                }}
+                animate={{
+                  opacity: [0.5, 1, 0.5],
+                }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Pulsing Disco Circles */}
+              <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-none">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute rounded-full border"
+                    style={{ borderColor: `rgba(255, 215, 0, ${0.15 - i * 0.025})` }}
+                    animate={{
+                      width: [100 + i * 80, 120 + i * 80, 100 + i * 80],
+                      height: [100 + i * 80, 120 + i * 80, 100 + i * 80],
+                      opacity: [0, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      delay: i * 0.4,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Monkey Image - DANCING! */}
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <motion.div
+                  className="relative w-48 h-48 sm:w-64 sm:h-64"
+                  animate={{
+                    y: [0, -20, 0, -15, 0, -25, 0],
+                    x: [0, 10, -10, 15, -15, 10, 0],
+                    rotate: [0, 8, -8, 12, -12, 5, 0],
+                    scale: [1, 1.05, 1, 1.08, 1, 1.03, 1],
+                  }}
+                  transition={{
+                    duration: 1.4,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  {/* Glow behind monkey */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full blur-2xl"
+                    animate={{
+                      background: [
+                        'radial-gradient(circle, rgba(255,0,110,0.5), transparent)',
+                        'radial-gradient(circle, rgba(255,215,0,0.5), transparent)',
+                        'radial-gradient(circle, rgba(0,245,212,0.5), transparent)',
+                        'radial-gradient(circle, rgba(155,93,229,0.5), transparent)',
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ transform: 'scale(1.5)' }}
+                  />
+                  <motion.img
+                    src="/funny-monkey.png"
+                    alt="Dancing Monkey"
+                    className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.6)] relative z-10"
+                    animate={{
+                      filter: [
+                        'brightness(1) saturate(1)',
+                        'brightness(1.3) saturate(1.5)',
+                        'brightness(1.1) saturate(1.2)',
+                        'brightness(1.4) saturate(1.6)',
+                        'brightness(1) saturate(1)',
+                      ],
+                    }}
+                    transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </motion.div>
+              </div>
+
+              {/* "NAHI NAHI" Text - Bouncing in sync */}
+              <motion.div
+                className="absolute top-6 left-0 right-0 z-20 text-center"
+                key={currentDanceText}
+                initial={{ y: -30, opacity: 0, scale: 0.5 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                exit={{ y: 30, opacity: 0, scale: 1.3 }}
+                transition={{ duration: 0.3, type: 'spring' }}
+              >
+                <motion.span
+                  className="text-4xl sm:text-6xl font-black text-white block"
+                  style={{
+                    textShadow: '0 0 20px rgba(255,0,110,0.8), 0 0 40px rgba(255,0,110,0.5), 0 0 60px rgba(255,215,0,0.3), 2px 2px 0 #ff006e',
+                  }}
+                  animate={{
+                    y: [0, -8, 0],
+                    scale: [1, 1.1, 1],
+                    rotate: [-2, 2, -2],
+                  }}
+                  transition={{ duration: 0.5, repeat: 6, ease: 'easeInOut' }}
+                >
+                  {danceTexts[currentDanceText]}
+                </motion.span>
+              </motion.div>
+
+              {/* Bottom Equalizer */}
+              <div className="absolute bottom-4 left-4 right-4 z-20">
+                <EqualizerBars />
+              </div>
+
+              {/* Video Timestamp */}
+              <div className="absolute top-3 right-3 z-20 bg-black/70 rounded-md px-2 py-1">
+                <span className="text-white text-xs font-mono">
+                  0:07
+                </span>
+              </div>
+            </div>
+
+            {/* Video Player Controls */}
+            <motion.div
+              className="bg-gray-900 rounded-b-2xl px-4 py-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {/* Progress Bar */}
+              <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden mb-2 cursor-pointer">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{
+                    background: 'linear-gradient(to right, #ff006e, #ffd700)',
+                  }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.1 }}
+                />
+              </div>
+
+              {/* Controls Row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* Play button (always "playing") */}
+                  <motion.div
+                    className="text-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    🎵
+                  </motion.div>
+                  {/* Time */}
+                  <span className="text-gray-400 text-xs font-mono">
+                    {`0:${String(Math.floor((progress / 100) * 7)).padStart(2, '0')} / 0:07`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Volume */}
+                  <span className="text-gray-400 text-sm">🔊</span>
+                  {/* Fullscreen */}
+                  <span className="text-gray-400 text-sm">⛶</span>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Speech Bubble */}
-        <motion.div
-          className="relative bg-white rounded-3xl p-6 sm:p-8 shadow-2xl mx-4 border-2 border-red-300"
-          initial={{ opacity: 0, y: 30, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-        >
-          {/* Speech bubble pointer */}
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[20px] border-b-white" />
-
-          <motion.h2
-            className="text-3xl sm:text-4xl font-extrabold text-red-500 mb-2"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: 3 }}
-          >
-            YE NAHI HO SAKTA! 🚫
-          </motion.h2>
-
-          <motion.p
-            className="text-lg text-gray-600 font-medium"
+      {/* Countdown message below video */}
+      <AnimatePresence>
+        {showPlayer && (
+          <motion.div
+            className="mt-6 text-center z-30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
           >
-            Tumpe sirf &quot;Haan&quot; button dabana hai! 🐒🔫
-          </motion.p>
-
-          <motion.div
-            className="mt-4 text-gray-400 text-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-          >
-            Wapas ja raha hoon tumhe sawaal dikhane... 😤
+            <motion.p
+              className="text-yellow-300 text-lg font-bold"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              Wapas jaane mein {countdown} second... 🐒
+            </motion.p>
+            <motion.p
+              className="text-gray-500 text-sm mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              Sirf &quot;Haan&quot; hi kaam karega! 😏
+            </motion.p>
           </motion.div>
-        </motion.div>
-      </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -561,12 +880,12 @@ export default function Home() {
         {page === 'monkey' && (
           <motion.div
             key="monkey"
-            initial={{ opacity: 0, x: 300 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -300 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.5, type: 'spring' }}
           >
-            <MonkeyPage onBack={() => setPage('proposal')} />
+            <MonkeyDancePage onBack={() => setPage('proposal')} />
           </motion.div>
         )}
 
