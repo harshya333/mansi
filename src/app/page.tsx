@@ -149,7 +149,7 @@ function EqualizerBars() {
           key={i}
           className="flex-1 rounded-t-sm"
           style={{
-            background: `linear-gradient(to top, #ff006e, #ff4d6d, #ffd700)`,
+            background: 'linear-gradient(to top, #ff006e, #ff4d6d, #ffd700)',
             maxWidth: '12px',
           }}
           animate={{
@@ -248,10 +248,10 @@ function DiscoSpotlights() {
 // ============== PROPOSAL PAGE ==============
 function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   const noButtonRef = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+  const [noPos, setNoPos] = useState({ left: 0, top: 0 });
   const [noAttempts, setNoAttempts] = useState(0);
   const [yesScale, setYesScale] = useState(1);
+  const [noVisible, setNoVisible] = useState(false);
 
   const funnyTexts = [
     "Arey pagal hai kya? 💀",
@@ -261,37 +261,64 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
     "Ek aur baar soch le! 🥺",
     "Please yaar... 🙏",
     "Maa kasam soch le! 😭",
+    "Tujhe pata hai main kitna ro dunga? 😭",
+    "Zindagi bhar nahi maaf karunga! 😤",
   ];
 
-  const handleNoMouseMove = useCallback((e: MouseEvent) => {
-    if (!noButtonRef.current || !containerRef.current) return;
-    const rect = noButtonRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const distance = Math.sqrt(
-      Math.pow(e.clientX - centerX, 2) + Math.pow(e.clientY - centerY, 2)
-    );
-
-    if (distance < 120) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const maxX = containerRect.width - rect.width - 20;
-      const maxY = containerRect.height - rect.height - 20;
-      const newX = 20 + Math.random() * Math.max(maxX - 20, 0);
-      const newY = 20 + Math.random() * Math.max(maxY - 20, 0);
-      setNoButtonPos({ x: newX, y: newY });
-      setNoAttempts((prev) => prev + 1);
-      setYesScale((prev) => Math.min(prev + 0.12, 2.2));
-    }
+  // Move No button to random screen position
+  const moveNoButton = useCallback(() => {
+    const btnW = 140;
+    const btnH = 50;
+    const padding = 20;
+    const maxX = window.innerWidth - btnW - padding;
+    const maxY = window.innerHeight - btnH - padding;
+    const newX = padding + Math.random() * maxX;
+    const newY = padding + Math.random() * maxY;
+    setNoPos({ left: newX, top: newY });
+    setNoAttempts((prev) => prev + 1);
+    setYesScale((prev) => Math.min(prev + 0.1, 2.0));
   }, []);
 
+  // Set initial position of No button (below Yes button)
   useEffect(() => {
-    window.addEventListener('mousemove', handleNoMouseMove);
-    return () => window.removeEventListener('mousemove', handleNoMouseMove);
-  }, [handleNoMouseMove]);
+    const timer = setTimeout(() => {
+      setNoPos({
+        left: window.innerWidth / 2 - 60,
+        top: window.innerHeight / 2 + 120,
+      });
+      setNoVisible(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Mouse move - detect proximity and move button
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!noButtonRef.current || !noVisible) return;
+      const rect = noButtonRef.current.getBoundingClientRect();
+      const btnCenterX = rect.left + rect.width / 2;
+      const btnCenterY = rect.top + rect.height / 2;
+      const dist = Math.sqrt(
+        (e.clientX - btnCenterX) ** 2 + (e.clientY - btnCenterY) ** 2
+      );
+      // If mouse is within 80px of No button center, move it
+      if (dist < 80) {
+        moveNoButton();
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [moveNoButton, noVisible]);
+
+  // Touch support for mobile
+  const handleNoTouch = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    moveNoButton();
+  }, [moveNoButton]);
 
   return (
-    <div ref={containerRef} className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
       <motion.div
         className="text-center max-w-lg mx-auto w-full"
         initial={{ opacity: 0, y: 50 }}
@@ -340,9 +367,8 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
           Kya Tumhe Main Pasand Hoon? 🥺
         </motion.p>
 
-        {/* Buttons Area */}
-        <div className="relative w-full min-h-[200px] flex flex-col items-center">
-          {/* Yes Button */}
+        {/* Yes Button */}
+        <div className="flex flex-col items-center gap-4">
           <motion.button
             onClick={onYes}
             className="relative px-12 py-5 bg-gradient-to-r from-pink-500 to-red-500 text-white text-2xl sm:text-3xl font-bold rounded-full shadow-lg cursor-pointer select-none overflow-hidden z-10"
@@ -368,43 +394,63 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
           </motion.button>
 
           {/* Funny text when they try to click No */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {noAttempts > 0 && (
               <motion.p
                 key={noAttempts}
-                className="text-lg text-gray-500 font-medium text-center mt-4"
+                className="text-lg text-gray-500 font-medium text-center"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
                 {funnyTexts[Math.min(noAttempts - 1, funnyTexts.length - 1)]}
               </motion.p>
             )}
           </AnimatePresence>
+        </div>
+      </motion.div>
 
-          {/* No Button - Runs away from cursor */}
+      {/* ===== NO BUTTON - FIXED POSITION, FLIES ANYWHERE ON SCREEN ===== */}
+      <AnimatePresence>
+        {noVisible && (
           <motion.button
             ref={noButtonRef}
-            onClick={onNo}
-            className="absolute top-16 px-8 py-3 bg-gray-200 text-gray-600 text-lg font-medium rounded-full cursor-pointer select-none hover:bg-gray-300 transition-colors whitespace-nowrap z-0"
+            key="no-btn"
+            initial={{ opacity: 0, scale: 0 }}
             animate={{
-              left: noButtonPos.x,
-              top: noButtonPos.y,
+              opacity: 1,
+              scale: 1,
+              left: noPos.left,
+              top: noPos.top,
             }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{
+              left: { type: 'spring', stiffness: 260, damping: 30 },
+              top: { type: 'spring', stiffness: 260, damping: 30 },
+              opacity: { duration: 0.2 },
+              scale: { duration: 0.2 },
+            }}
+            onClick={onNo}
+            onTouchStart={handleNoTouch}
+            onMouseDown={(e) => {
+              // On mousedown, move button immediately before click registers
+              e.preventDefault();
+              moveNoButton();
+            }}
+            className="fixed z-50 px-8 py-3 bg-gray-200 text-gray-600 text-lg font-medium rounded-full cursor-pointer select-none hover:bg-gray-300 active:bg-gray-400 transition-colors whitespace-nowrap shadow-lg border-2 border-gray-300"
           >
             Nahi... 😒
           </motion.button>
-        </div>
-      </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom decorative text */}
       <motion.p
         className="absolute bottom-8 text-gray-400 text-sm text-center px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 2.5 }}
       >
         (P.S. - Sirf &quot;Haan&quot; ka button kaam karta hai 😏)
       </motion.p>
@@ -416,7 +462,7 @@ function ProposalPage({ onYes, onNo }: { onYes: () => void; onNo: () => void }) 
 function MonkeyDancePage({ onBack }: { onBack: () => void }) {
   const [showPlayer, setShowPlayer] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [countdown, setCountdown] = useState(6);
+  const [countdown, setCountdown] = useState(7);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -466,7 +512,8 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
   }, [showPlayer, danceTexts.length]);
 
   return (
-    <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8"
+    <div
+      className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8"
       style={{
         background: 'radial-gradient(ellipse at center, #1a0033 0%, #0d001a 50%, #000000 100%)',
       }}
@@ -522,20 +569,18 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               />
 
-              {/* Disco Floor Effect (Bottom) */}
+              {/* Disco Floor Effect */}
               <motion.div
-                className="absolute bottom-0 left-0 right-0 h-16 z-5"
+                className="absolute bottom-0 left-0 right-0 h-16"
                 style={{
                   background: 'linear-gradient(to top, rgba(255,0,110,0.3), transparent)',
                 }}
-                animate={{
-                  opacity: [0.5, 1, 0.5],
-                }}
+                animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
               />
 
               {/* Pulsing Disco Circles */}
-              <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <motion.div
                     key={i}
@@ -604,7 +649,7 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
                 </motion.div>
               </div>
 
-              {/* "NAHI NAHI" Text - Bouncing in sync */}
+              {/* "NAHI NAHI" Text */}
               <motion.div
                 className="absolute top-6 left-0 right-0 z-20 text-center"
                 key={currentDanceText}
@@ -636,9 +681,7 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
 
               {/* Video Timestamp */}
               <div className="absolute top-3 right-3 z-20 bg-black/70 rounded-md px-2 py-1">
-                <span className="text-white text-xs font-mono">
-                  0:07
-                </span>
+                <span className="text-white text-xs font-mono">0:07</span>
               </div>
             </div>
 
@@ -653,9 +696,7 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
               <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden mb-2 cursor-pointer">
                 <motion.div
                   className="h-full rounded-full"
-                  style={{
-                    background: 'linear-gradient(to right, #ff006e, #ffd700)',
-                  }}
+                  style={{ background: 'linear-gradient(to right, #ff006e, #ffd700)' }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.1 }}
                 />
@@ -664,7 +705,6 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
               {/* Controls Row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {/* Play button (always "playing") */}
                   <motion.div
                     className="text-white"
                     animate={{ scale: [1, 1.2, 1] }}
@@ -672,15 +712,12 @@ function MonkeyDancePage({ onBack }: { onBack: () => void }) {
                   >
                     🎵
                   </motion.div>
-                  {/* Time */}
                   <span className="text-gray-400 text-xs font-mono">
                     {`0:${String(Math.floor((progress / 100) * 7)).padStart(2, '0')} / 0:07`}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Volume */}
                   <span className="text-gray-400 text-sm">🔊</span>
-                  {/* Fullscreen */}
                   <span className="text-gray-400 text-sm">⛶</span>
                 </div>
               </div>
